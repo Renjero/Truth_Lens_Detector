@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Menu, X, ShieldCheck, LogOut, UserRound } from "lucide-react";
+import { Menu, X, ShieldCheck, LogOut, UserRound, Route } from "lucide-react";
 
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 // import { useDispatch, useSelector } from 'react-redux'
 
@@ -9,6 +10,12 @@ export default function Navbar({  onAuth, onLogout }) {
 
 
   const {user} = useSelector(state => state.auth)
+// const navigate = useNavigate();
+
+// navigate("/dashboard");
+
+
+
 
 const isAuthenticated = useSelector(
   (state) => state.auth.isAuthenticated
