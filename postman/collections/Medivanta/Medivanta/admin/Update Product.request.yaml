@@ -1,0 +1,47 @@
+$kind: http-request
+url: "{{baseURL}}/api/admin/product"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: name
+      value: paracitamol 500mg
+      description: ""
+      disabled: false
+    - type: text
+      key: descriptioin
+      value: fever
+      description: ""
+      disabled: false
+    - type: text
+      key: price
+      value: "10"
+      description: ""
+      disabled: false
+    - type: text
+      key: stock
+      value: "150"
+      description: ""
+      disabled: false
+    - type: text
+      key: expireOn
+      value: "2029"
+      description: ""
+      disabled: false
+    - type: file
+      key: image
+      src:
+        - /Users/renjiro_robin/Desktop/temp file/images.jpeg
+      description: ""
+      disabled: false
+    - type: text
+      key: isActive
+      value: ""
+      description: ""
+      disabled: true
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_036c}}"
+order: 4345718499702214

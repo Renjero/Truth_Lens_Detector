@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./store/auth";
 
+const URL = "http://localhost:5001/api/auth/login";
 const Login = () => {
+  const navigate = useNavigate();
   // / 1. Store form data
   const [user, setuser] = useState({
     email: "",
     password: "",
   });
+const { storeTokenInLs } = useAuth();
+
 
   // 2. Collect input data
   const handleChange = (e) => {
@@ -17,10 +23,43 @@ const Login = () => {
   };
 
   // 3. Get data when user clicks Login
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     console.log(user);
+
+    try {
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+
+      // Declare data here
+      const data = await response.json();
+
+      console.log(data);
+
+      if (response.ok) {
+          storeTokenInLs(data.token);
+        // localStorage.setItem("token", data.token);
+
+        setuser({
+          email: "",
+          password: "",
+        });
+
+        alert("Login successful!");
+        navigate("/");
+      } else {
+        alert(data.message || "Login failed");
+      }
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
   return (

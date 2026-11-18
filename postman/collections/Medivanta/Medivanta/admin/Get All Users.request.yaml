@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseURL}}/api/admin/users"
+method: GET
+body:
+  type: urlencoded
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_190q}}"
+order: 1790714597914

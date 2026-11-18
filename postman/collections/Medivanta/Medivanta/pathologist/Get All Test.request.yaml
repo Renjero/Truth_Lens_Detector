@@ -1,0 +1,32 @@
+$kind: http-request
+url: http://localhost:8080/api/pathologist/6ac3f2fe86edc2da2589938f
+method: POST
+body:
+  type: urlencoded
+  content:
+    - key: pathologyTest
+      value: 6ac697d0b5c5fb97d1cb0d85
+      disabled: false
+    - key: price
+      value: "122"
+      disabled: true
+      description: ""
+    - key: pathologyTest
+      value: 6ac697d0b5c5fb97d1cb0d85
+      disabled: true
+      description: ""
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_0xpy}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 500 or handles validation error", function () {
+          pm.response.to.have.status(500);
+      });
+
+      pm.test("Response body contains HTML error structure", function () {
+          pm.expect(pm.response.text()).to.include("Error");
+      });
+order: 3849741851921695

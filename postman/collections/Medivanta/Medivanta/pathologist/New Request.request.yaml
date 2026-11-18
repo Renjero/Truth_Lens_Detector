@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:8080/api/appointment/enter aid
+method: POST
+order: 4350632704807604

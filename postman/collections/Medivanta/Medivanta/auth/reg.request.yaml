@@ -1,0 +1,21 @@
+$kind: http-request
+url: http://localhost:8080/api/auth/register
+method: POST
+body:
+  type: urlencoded
+  content:
+    name: admin
+    email: admin@gmail.comm
+    phone: "98765"
+    password: admin@123
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response body contains success message", function () {
+          pm.expect(pm.response.text()).to.include("User  logged in...");
+      });
+order: 1790714564802

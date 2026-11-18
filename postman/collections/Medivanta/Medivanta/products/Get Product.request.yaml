@@ -1,0 +1,6 @@
+$kind: http-request
+description: ""
+url: "{{baseURL}}/api/products"
+method: GET
+examples: .resources/Get Product.resources/examples
+order: 575389093170470

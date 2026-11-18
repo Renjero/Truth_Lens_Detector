@@ -1,0 +1,26 @@
+$kind: http-request
+url: http://localhost:8080/api/pathologist/add
+method: POST
+body:
+  type: urlencoded
+  content:
+    title: blood
+    description: blooodd
+    price: "333"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_0xpy}}"
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Status code is 500 or handles validation error", function () {
+          // The endpoint returns a 500 status code with a validation error HTML page when required fields are missing
+          pm.response.to.have.status(500);
+      });
+
+      pm.test("Response body contains HTML error structure", function () {
+          pm.expect(pm.response.text()).to.include("<!DOCTYPE html>");
+          pm.expect(pm.response.text()).to.include("ValidationError");
+      });
+order: 3227468549935380

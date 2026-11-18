@@ -1,28 +1,82 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+import { useAuth } from "./store/auth";
+
+
+
+const defaultContactFormData = {
+  username: "",
+  email: "",
+  subject: "",
+  message: "",
+};
 
 const Contact = () => {
+  const [contact, setcontact] = useState(defaultContactFormData);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [user , setuser]= useState({
-    username : "",
-    email : "",
-    subject : "",
-    message : "" 
-  })
+  const { user, token } = useAuth();
 
+  // Automatically fill name and email when Contact page opens
+  useEffect(() => {
+    if (user) {
+      setcontact((prev) => ({
+        ...prev,
+        username: user.name || user.username || "",
+        email: user.email || "",
+      }));
+    }
+  }, [user]);
 
-    // 2. Collect input data
-     const handleChange = (e) =>{
-     setuser({
-      ...user,
-     [ e.target.name]: e.target.value
-     })
-     }
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-       // 3. Get data when user clicks Login
-  const handleSubmit = (e) => {
+    setcontact((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Submit contact form
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    console.log(user);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && {
+            Authorization: `Bearer ${token}`,
+          }),
+        },
+        body: JSON.stringify(contact),
+      });
+
+     const responseText = await response.text();
+
+const data = responseText ? JSON.parse(responseText) : {};
+
+      if (response.ok) {
+        alert(data.message || "Message sent successfully!");
+
+        // Clear subject and message but keep name and email
+        setcontact({
+          ...defaultContactFormData,
+          username: user?.name || user?.username || "",
+          email: user?.email || "",
+        });
+      } else {
+        alert(data.message || "Failed to send message");
+      }
+    } catch (error) {
+      console.log("Contact Error:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,7 +101,7 @@ const Contact = () => {
           {/* Contact Information */}
           <div>
             <h2 className="text-3xl font-bold mb-5">
-              Get in Touch
+              Get in touch {user?.name || user?.username || ""}
             </h2>
 
             <p className="text-gray-600 leading-7 mb-10">
@@ -56,7 +110,6 @@ const Contact = () => {
             </p>
 
             <div className="space-y-7">
-
               <div>
                 <h3 className="font-semibold">Email Us</h3>
                 <p className="text-gray-500">
@@ -77,82 +130,97 @@ const Contact = () => {
                   Online News Verification Platform
                 </p>
               </div>
-
             </div>
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200" >
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
 
             <h2 className="text-2xl font-bold mb-6">
               Send Us a Message
             </h2>
 
-            <form className="space-y-5"  onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit}>
 
+              {/* Name */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Your Name
                 </label>
+
                 <input
-                value={user.username}
-                onChange={handleChange}
+                  type="text"
                   name="username"
-                  placeholder="Enter your name"
+                 value={contact.username}
+                  onChange={handleChange}
+                  placeholder="Your Name"
+                  required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-600"
                 />
               </div>
 
+              {/* Email */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Email Address
                 </label>
+
                 <input
-                value={user.email}
-                onChange={handleChange}
+                  type="email"
                   name="email"
-                  placeholder="Enter your email"
+                  value={contact.email}
+                  onChange={handleChange}
+                  placeholder="Your Email"
+                  required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-600"
                 />
               </div>
 
+              {/* Subject */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Subject
                 </label>
+
                 <input
-                value={user.subject}
-                onChange={handleChange}
+                  type="text"
                   name="subject"
+                  value={contact.subject}
+                  onChange={handleChange}
                   placeholder="Enter subject"
+                  required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-600"
                 />
               </div>
 
+              {/* Message */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Message
                 </label>
+
                 <textarea
-                value={user.message}
-                onChange={handleChange}
-                name="message"
+                  name="message"
+                  value={contact.message}
+                  onChange={handleChange}
                   rows="5"
                   placeholder="Write your message..."
+                  required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-teal-600 resize-none"
-                ></textarea>
+                />
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-lg transition"
+                disabled={isLoading}
+                className="w-full bg-teal-700 hover:bg-teal-800 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
               >
-                Send Message
+                {isLoading ? "Sending..." : "Send Message"}
               </button>
 
             </form>
           </div>
-
         </div>
       </section>
 

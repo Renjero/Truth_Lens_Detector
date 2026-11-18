@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:8080/api/pathologist/tests
+method: GET
+order: 4478367223284636

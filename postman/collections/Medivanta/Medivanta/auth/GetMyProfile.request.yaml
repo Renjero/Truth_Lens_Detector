@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseURL}}/api/auth/me"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYmMyNmQ4ZWRlN2I0Njk1MjRjNzU5MiIsImlhdCI6MTc5MDcxNTYxNiwiZXhwIjoxNzkzMzA3NjE2fQ.G5TcwqQc46r4r0jWWnQxogwXerCMNZ8IPZOhAer_k38
+order: 3996368342333636

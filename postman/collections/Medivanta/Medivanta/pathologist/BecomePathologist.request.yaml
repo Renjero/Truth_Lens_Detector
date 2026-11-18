@@ -1,0 +1,35 @@
+$kind: http-request
+url: http://localhost:8080/api/pathologist/request
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "registrationNumber": "MP-PATH-1001",
+      "labName": "MediTrust Diagnostics",
+      "qualification": "MD Pathology",
+      "experience": 8,
+      "specialization": "Clinical Pathology",
+      "phone": "6666666666",
+      "email": "pathologist@meditrust.com",
+      "consultationFee": 500,
+      "workingHours": {
+        "start": "09:00 AM",
+        "end": "05:00 PM"
+      },
+      "availableDays": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "isVerified": true,
+      "isActive": true
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_0xpy}}"
+order: 1791223093992
