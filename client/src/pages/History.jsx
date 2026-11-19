@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "./store/auth";
-
 import API_URL from "../api";
 
 import {
@@ -19,13 +18,9 @@ import {
 const History = () => {
   const { token } = useAuth();
 
-  // Switch between two histories
   const [activeTab, setActiveTab] = useState("verification");
 
-  // Verification history
   const [history, setHistory] = useState([]);
-
-  // Contact history
   const [contactHistory, setContactHistory] = useState([]);
 
   const [search, setSearch] = useState("");
@@ -34,76 +29,68 @@ const History = () => {
 
   // Get verification history
   const getHistory = async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/history`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+    const response = await fetch(`${API_URL}/history`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Failed to fetch verification history"
       );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch verification history");
-      }
-
-      setHistory(data.history || []);
-    } catch (error) {
-      console.log("Verification History Error:", error);
-      throw error;
     }
+
+    setHistory(data.history || []);
   };
 
   // Get contact history
   const getContactHistory = async () => {
-    try {
-      const response = await fetch(
-       `${API_URL}/history`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+    const response = await fetch(`${API_URL}/contact/history`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Failed to fetch contact history"
       );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch contact history");
-      }
-
-      setContactHistory(data.contacts || []);
-    } catch (error) {
-      console.log("Contact History Error:", error);
-      throw error;
     }
+
+    setContactHistory(data.contacts || []);
   };
 
-  // Fetch both histories
+  // Fetch both histories independently
   const refreshHistory = async () => {
     if (!token) {
       setIsLoading(false);
       return;
     }
 
-    try {
-      setIsLoading(true);
-      setError("");
+    setIsLoading(true);
+    setError("");
 
-      await Promise.all([
-        getHistory(),
-        getContactHistory(),
-      ]);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
+    const results = await Promise.allSettled([
+      getHistory(),
+      getContactHistory(),
+    ]);
+
+    const errors = results
+      .filter((result) => result.status === "rejected")
+      .map((result) => result.reason.message);
+
+    if (errors.length > 0) {
+      setError(errors.join(" | "));
     }
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -174,12 +161,10 @@ const History = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
-
       <div className="max-w-6xl mx-auto">
 
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-8">
-
           <div>
             <div className="flex items-center gap-2 text-teal-700 mb-2">
               <Clock size={18} />
@@ -208,19 +193,16 @@ const History = () => {
               {history.length + contactHistory.length}
             </h2>
           </div>
-
         </div>
 
         {/* History Switch */}
         <div className="bg-white border border-gray-200 rounded-2xl p-2 mb-6 shadow-sm">
-
           <div className="grid grid-cols-2 gap-2">
 
             <button
               onClick={() => {
                 setActiveTab("verification");
                 setSearch("");
-                setError("");
               }}
               className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl font-semibold transition ${
                 activeTab === "verification"
@@ -239,7 +221,6 @@ const History = () => {
               onClick={() => {
                 setActiveTab("contact");
                 setSearch("");
-                setError("");
               }}
               className={`flex items-center justify-center gap-2 px-4 py-4 rounded-xl font-semibold transition ${
                 activeTab === "contact"
@@ -259,12 +240,10 @@ const History = () => {
 
         {/* Search and Refresh */}
         <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-5 mb-6 shadow-sm">
-
           <div className="flex flex-col md:flex-row gap-4">
 
             {/* Search */}
             <div className="relative flex-1">
-
               <Search
                 size={19}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -291,7 +270,6 @@ const History = () => {
                   <X size={18} />
                 </button>
               )}
-
             </div>
 
             {/* Refresh */}
@@ -314,27 +292,18 @@ const History = () => {
           </div>
         )}
 
-        {/* =============================== */}
         {/* VERIFICATION HISTORY */}
-        {/* =============================== */}
-
         {activeTab === "verification" && (
-
           <div className="max-h-[680px] overflow-y-auto pr-2 space-y-5">
 
             {filteredHistory.length > 0 ? (
-
               filteredHistory.map((item) => (
-
                 <div
                   key={item._id}
                   className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition"
                 >
-
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-
                     <div className="flex items-center gap-3">
-
                       <div className="bg-teal-50 text-teal-700 p-3 rounded-xl">
                         <FileSearch size={22} />
                       </div>
@@ -348,18 +317,14 @@ const History = () => {
                           Provider: {item.provider || "AI"}
                         </p>
                       </div>
-
                     </div>
 
                     <span className="text-sm text-gray-400">
                       {new Date(item.createdAt).toLocaleString()}
                     </span>
-
                   </div>
 
-                  {/* Submitted News */}
                   <div className="mb-5">
-
                     <h4 className="text-sm font-bold text-gray-800 mb-2">
                       Submitted News
                     </h4>
@@ -367,12 +332,9 @@ const History = () => {
                     <p className="text-gray-600 text-sm leading-7 whitespace-pre-wrap break-words">
                       {item.news}
                     </p>
-
                   </div>
 
-                  {/* AI Analysis */}
                   <div className="bg-slate-50 border border-gray-100 rounded-xl p-4 md:p-5">
-
                     <div className="flex items-center gap-2 mb-3">
                       <FileSearch size={17} className="text-teal-700" />
 
@@ -384,17 +346,11 @@ const History = () => {
                     <p className="text-sm text-gray-600 leading-7 whitespace-pre-wrap break-words">
                       {item.analysis}
                     </p>
-
                   </div>
-
                 </div>
-
               ))
-
             ) : (
-
               <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
-
                 <FileSearch
                   size={42}
                   className="text-gray-300 mx-auto mb-4"
@@ -409,36 +365,25 @@ const History = () => {
                     ? "Try searching with different keywords."
                     : "Your news verification history will appear here."}
                 </p>
-
               </div>
-
             )}
 
           </div>
         )}
 
-        {/* =============================== */}
         {/* CONTACT HISTORY */}
-        {/* =============================== */}
-
         {activeTab === "contact" && (
-
           <div className="max-h-[680px] overflow-y-auto pr-2 space-y-5">
 
             {filteredContacts.length > 0 ? (
-
               filteredContacts.map((item) => (
-
                 <div
                   key={item._id}
                   className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition"
                 >
-
                   {/* Card Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-
                     <div className="flex items-center gap-3">
-
                       <div className="bg-teal-50 text-teal-700 p-3 rounded-xl">
                         <MessageSquare size={22} />
                       </div>
@@ -452,19 +397,16 @@ const History = () => {
                           Submitted to TruthLens
                         </p>
                       </div>
-
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <Calendar size={16} />
                       {new Date(item.createdAt).toLocaleString()}
                     </div>
-
                   </div>
 
                   {/* User Details */}
                   <div className="bg-slate-50 rounded-xl p-4 mb-5 space-y-2">
-
                     <p className="text-sm text-gray-600">
                       <span className="font-semibold text-gray-800">
                         Name:
@@ -478,12 +420,10 @@ const History = () => {
                       </span>{" "}
                       {item.email}
                     </p>
-
                   </div>
 
                   {/* Subject */}
                   <div className="mb-4">
-
                     <h4 className="text-sm font-bold text-gray-800 mb-2">
                       Subject
                     </h4>
@@ -491,36 +431,26 @@ const History = () => {
                     <p className="text-gray-600 text-sm">
                       {item.subject}
                     </p>
-
                   </div>
 
                   {/* Message */}
                   <div className="bg-slate-50 border border-gray-100 rounded-xl p-4 md:p-5">
-
                     <div className="flex items-center gap-2 mb-3">
-
                       <Mail size={17} className="text-teal-700" />
 
                       <h4 className="font-bold text-gray-800">
                         Your Message
                       </h4>
-
                     </div>
 
                     <p className="text-sm text-gray-600 leading-7 whitespace-pre-wrap break-words">
                       {item.message}
                     </p>
-
                   </div>
-
                 </div>
-
               ))
-
             ) : (
-
               <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
-
                 <Mail
                   size={42}
                   className="text-gray-300 mx-auto mb-4"
@@ -535,9 +465,7 @@ const History = () => {
                     ? "Try searching with different keywords."
                     : "Your submitted contact messages will appear here."}
                 </p>
-
               </div>
-
             )}
 
           </div>
