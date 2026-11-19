@@ -3,6 +3,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "./store/auth";
 
+import API_URL from "../api";
+
 function Detector() {
   const { token } = useAuth();
 
@@ -31,7 +33,7 @@ function Detector() {
 
       // Call Groq AI backend with JWT authentication
       const response = await axios.post(
-        "http://localhost:5001/api/groq/verify",
+        `${API_URL}/groq/verify`,
         { news },
         {
           headers: {

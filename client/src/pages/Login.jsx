@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./store/auth";
 
-const URL = "http://localhost:5001/api/auth/login";
+
+import API_URL from "../api";
+
+
+const URL = `${API_URL}/auth/login`;
 const Login = () => {
   const navigate = useNavigate();
   // / 1. Store form data

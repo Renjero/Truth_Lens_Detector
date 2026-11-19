@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./store/auth";
 
+import API_URL from "../api";
+
 import {
   Search,
   Clock,
@@ -34,7 +36,7 @@ const History = () => {
   const getHistory = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5001/api/history",
+        `${API_URL}/api/history`,
         {
           method: "GET",
           headers: {
@@ -60,7 +62,7 @@ const History = () => {
   const getContactHistory = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5001/api/contact/history",
+       `${API_URL}/history`,
         {
           method: "GET",
           headers: {

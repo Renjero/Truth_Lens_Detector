@@ -5,7 +5,7 @@ import { useAuth } from "./store/auth";
 // const navigate = useNavigate();
 // const navigate = useNavigate();
 
-
+import API_URL from "../api";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const Register = () => {
       const { confirmPassword, ...registerData } = user;
 
       const response = await fetch(
-        "http://localhost:5001/api/auth/register",
+        `${API_URL}/auth/register`,
         {
           method: "POST",
           headers: {

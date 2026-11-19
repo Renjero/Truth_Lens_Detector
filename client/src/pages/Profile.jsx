@@ -10,6 +10,8 @@ import {
   Camera,
 } from "lucide-react";
 
+// import API_URL from "../api";
+
 const Profile = () => {
   const { user } = useAuth();
 

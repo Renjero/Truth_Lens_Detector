@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from "react";
 
+import API_URL from "../api";
+
 const ContactHistory = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ const ContactHistory = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch("/api/contact/history", {
+        const response = await fetch(`${API_URL}/contact/history`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

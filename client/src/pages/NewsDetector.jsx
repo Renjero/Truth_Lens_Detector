@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import axios from "axios";
+import API_URL from "../api";
 
 const NewsDetector = () => {
   const [headline, setHeadline] = useState("");
@@ -18,7 +19,7 @@ const NewsDetector = () => {
       setResult(null);
 
       const response = await axios.post(
-        "http://localhost:5000/api/news/analyze",
+        `${API_URL}/api/news/analyze`,
         {
           headline,
           content,

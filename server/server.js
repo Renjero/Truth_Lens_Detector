@@ -40,6 +40,7 @@ app.use(
     origin: isProduction
       ? process.env.CLIENT_URL || true
       : process.env.CLIENT_URL || "http://localhost:5173",
+      
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
     credentials: true,
   }),
