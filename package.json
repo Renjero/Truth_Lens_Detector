@@ -7,9 +7,10 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "server": "node server/server.js",
+    "setup": "npm install && npm install --prefix client --include=dev && npm run build --prefix client",
+    "start": "node server/server.js",
+    "build": "npm run build --prefix client",
     "dev": "node --watch server/server.js"
-
   },
   "dependencies": {
     "@google/genai": "^2.32.0",
