@@ -34,16 +34,18 @@ const __dirname = path.dirname(__filename);
 const frontendPath = path.resolve(__dirname, "../client/dist");
 const frontendIndex = path.join(frontendPath, "index.html");
 
+
 // CORS configuration
 app.use(
   cors({
-    origin: isProduction
-      ? process.env.CLIENT_URL || true
-      : process.env.CLIENT_URL || "http://localhost:5173",
-      
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
+    origin: [
+      "http://localhost:5173",
+      "https://truth-lens-detector.onrender.com",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  }),
+  })
 );
 
 // Body parser
