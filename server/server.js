@@ -1,3 +1,4 @@
+
 import express from "express";
 import dotenv from "dotenv";
 import colors from "colors";
@@ -5,74 +6,96 @@ import connectDB from "./config/dbConfig.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-
 import newsRoutes from "./routes/newsRoutes.js";
 import groqRoutes from "./routes/groqRoutes.js";
 import historyRoutes from "./routes/historyRoutes.js";
-
 import contactRoutes from "./routes/contactRoutes.js";
 
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
+import cors from "cors";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-import cors from "cors";
-var corsOptions = {
-  origin: "http://localhost:5173",
-  method: "PUT,POST,GET,PUT,DELETE,HEAD",
-  Credential: true,
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
+// Environment
+const isProduction = process.env.NODE_ENV === "production";
 
-// Adds headers: Access-Control-Allow-Origin: *
-app.use(cors(corsOptions));
+console.log("NODE_ENV:", process.env.NODE_ENV);
+
+// File paths
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// React frontend build folder
+const frontendPath = path.resolve(__dirname, "../client/dist");
+const frontendIndex = path.join(frontendPath, "index.html");
+
+// CORS configuration
+app.use(
+  cors({
+    origin: isProduction
+      ? process.env.CLIENT_URL || true
+      : process.env.CLIENT_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
+    credentials: true,
+  }),
+);
 
 // Body parser
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// devops
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// React frontend build folder
-const frontendPath = path.join(__dirname, "../client/dist");
-
-// Serve React frontend
-app.use(express.json());
-
-/// devops
-
 // Test route
 app.get("/test", (req, res) => {
-  res.send("Backend is working!");
+  res.status(200).send("Backend is working!");
 });
 
-// Auth Routes
+// API Routes
 app.use("/api/auth", authRoutes);
-
-// Admin Routes
 app.use("/api/admin", adminRoutes);
-
-// AI Routes
-
 app.use("/api/news", newsRoutes);
-
 app.use("/api/groq", groqRoutes);
-
-// history
 app.use("/api/history", historyRoutes);
-
-// Contact API
 app.use("/api/contact", contactRoutes);
-if (process.env.NODE_ENV === "production") {
-  app.get("/{*path}", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
+
+// Unknown API routes
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
   });
+});
+
+// Development / Production
+if (isProduction) {
+  console.log(
+    "Project is Running in Production Environment.".bgGreen,
+  );
+
+  // Check React build
+  if (fs.existsSync(frontendIndex)) {
+    console.log("React frontend build found.".bgGreen);
+
+    // Serve React static files
+    app.use(express.static(frontendPath));
+
+    // React Router fallback (Express 5 compatible)
+    app.get("/{*path}", (req, res) => {
+      res.sendFile(frontendIndex);
+    });
+  } else {
+    console.error(
+      `React build not found at: ${frontendIndex}`.bgRed,
+    );
+
+    app.get("/{*path}", (req, res) => {
+      res.status(500).send("React frontend build not found.");
+    });
+  }
 } else {
   console.log(
     "Project is Running in Dev Environment. Frontend Go To PORT: 5173".bgMagenta,
@@ -83,27 +106,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// DB connection
-connectDB();
-
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is Running at: ${PORT}`.bgBlue);
+// Database connection
+connectDB().catch((error) => {
+  console.error("Database connection failed:", error.message);
 });
 
-// // Test middleware
-// app.use((req, res, next) => {
-//     console.log("Content-Type:", req.headers["content-type"]);
-//     console.log("Body:", req.body);
-//     next();
-// });
-
-// app.use(express.urlencoded({ extended: true }));
-
-// app.use((req, res, next) => {
-//     console.log("Content-Type:", req.headers["content-type"]);
-//     console.log("Body:", req.body);
-//     next();
-// });
-
-// app.use("/api/auth", authRoutes);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is Running at PORT: ${PORT}`.bgBlue);
+});
