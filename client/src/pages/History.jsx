@@ -36,7 +36,7 @@ const History = () => {
   const getHistory = async () => {
     try {
       const response = await fetch(
-        `${API_URL}/api/history`,
+        `${API_URL}/history`,
         {
           method: "GET",
           headers: {
